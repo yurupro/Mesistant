@@ -5,6 +5,7 @@ import (
 	"context"
 	"time"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/contrib/sessions"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -28,6 +29,7 @@ func main() {
 	r := gin.Default()
 	store := sessions.NewCookieStore([]byte("secret"))
 	r.Use(sessions.Sessions("mysession", store))
+	r.Use(static.Serve("/", static.LocalFile("web", false)))
 
 	mongodb, err := initDB()
 	if err != nil {
