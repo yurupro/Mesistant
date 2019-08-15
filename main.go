@@ -42,13 +42,22 @@ func main() {
 
 	// レシピアップロード
 	r.POST("/recipe/upload", recipeUpload)
+	// IDからレシピ取得
 	r.GET("/recipe/:id", recipeGet)
+	// ユーザーIDからそのユーザーのレシピを取得
 	r.GET("/user/:id/recipes", recipeGetByUser)
 
 	// ユーザー追加
 	r.POST("/user/add", userAdd)
+	// ユーザーログイン
 	r.POST("/user/login", userLogin) //{"user": "User id", "password": "password"}(SSLだからボディーにJSON載せよう)
+	// ユーザーログアウト
 	r.POST("/user/logout", userLogout)
+	
+	// デバイスの登録
+	r.POST("/device/register", registerDevice)
+	// デバイスからのキューの確認
+	r.GET("/device/queue/:id", getDeviceQueue)
 
 	if err := r.Run(":8080"); err != nil {
 		fmt.Println("Server Error Happened")
