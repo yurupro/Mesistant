@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8" />
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+    <script>
+        $(function(){
+            $('#btn').click(function(){})
+       
+            $.ajax({
+                    type: 'GET',
+                    url: '/user/:user/recipe',
+                    dataType: 'json',
+                    
+                    statusCode: {
+                    200: function () {
+                        console.log("200");
+                        
+                    },
+                    404: function () {
+                        console.log("404");
+                    }
+                }
+
+            });
+        });
+                
+        // $(function () {
+        //     $.getJSON("data.json", function (data) {
+        //         var
+        //             ulObj = $("#demo"),
+        //             len = data.length;
+
+        //         for (var i = 0; i < len; i++) {
+        //             ulObj.append($("<li>").attr({ "id": data[i].id }).text(data[i].name));
+        //         }
+        //     });
+        // });
+    </script>
+</head>
+
+<body>
+    <ul id="demo"></ul>
+</body>
+
+</html>
