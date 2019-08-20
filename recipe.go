@@ -15,7 +15,7 @@ type JSONMultiRecipe struct {
 type Step struct {
 	Type         string `bson:"type" json:"type"`                   // 操作の種類{"heat", "add"}
 	Description  string `bson:"description" json:"description"`     // 操作の説明(ttsで読み上げる文字列)
-	Duration     string `bson:"duration" json:"duration"`           // 操作時間[s]。加熱処理等デバイスが自動で行う操作にのみ定義されるプロパティ
+	Duration     int64  `bson:"duration" json:"duration"`           // 操作時間[s]。加熱処理等デバイスが自動で行う操作にのみ定義されるプロパティ
 	HeatStrength int64  `bson:"heat_strength" json:"heat_strength"` // typeがheatなときに、火力を定義する
 	AddGrams     int64  `bson:"add_grams" json:"add_grams"`         // typeがaddなときに、入れるものの分量をグラム指定する。
 }
