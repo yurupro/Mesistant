@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/go-session/gin-session"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -30,7 +31,10 @@ type Recipe struct {
 func recipeUpload(c *gin.Context) {
 	var recipe Recipe
 	recipe.ID = primitive.NewObjectID()
-	c.BindJSON(&recipe)
+	if err := c.BindJSON(&recipe); err != nil {
+	  c.Status(500)
+	  return
+	}
 	fmt.Println(recipe)
 	if _, err := recipeDB.InsertOne(context.TODO(), recipe); err != nil {
 		c.Status(500)
@@ -76,4 +80,26 @@ func recipeGetByUser(c *gin.Context) {
 		recipes = append(recipes, recipe)
 	}
 	c.JSON(200, JSONMultiRecipe{Array: recipes})
+}
+func recipeAddQueue(c *gin.Context){
+  ctx := context.TODO()
+  store := ginsession.FromContext(c)
+  userID, ok := store.Get("user")
+  if !ok {
+	c.Status(403)
+	return
+  }
+  var recipe Recipe
+  var device Device
+  recipeID, _:= primitive.ObjectIDFromHex(c.Param("id"))
+  if err := recipeDB.FindOne(ctx, bson.M{"_id": recipeID}).Decode(&recipe); err != nil{
+	c.Status(404)
+	return
+  }
+  if err := deviceDB.FindOne(ctx, bson.M{"user_id": userID.(string)}).Decode(&device); err != nil {
+	c.Status(400)
+	return
+  }
+  device.Recipe = recipe
+  c.JSON(200, recipe)
 }

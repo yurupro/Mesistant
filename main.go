@@ -44,6 +44,8 @@ func main() {
 	r.POST("/recipe/upload", recipeUpload)
 	// IDからレシピ取得
 	r.GET("/recipe/:id", recipeGet)
+	// キューにレシピを追加
+	r.GET("/recipe/:id/add_queue", recipeAddQueue)
 	// ユーザーIDからそのユーザーのレシピを取得
 	r.GET("/user/:id/recipes", recipeGetByUser)
 
