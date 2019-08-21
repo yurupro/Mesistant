@@ -1,4 +1,5 @@
 FROM golang:1.12-alpine3.9
+LABEL maintainer="Prokuma <prokuma@prokuma.kr>"
 
 RUN apk add git
 
