@@ -8,9 +8,9 @@ a {
 
 .top-wrapper {
   padding: 300px 200px 400px;
-  background-image: url(./image/fried-rice-967081_1920.jpg);
+  /* background-image: url(./image/fried-rice-967081_1920.jpg); */
   background-size: cover;
-  color: white;
+  background-color: blue;
   text-align: center;
 }
 
