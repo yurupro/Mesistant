@@ -33,8 +33,8 @@ func registerDevice(c *gin.Context) { // POST by device
 			return
 		}
 		device.ID = res.InsertedID.(primitive.ObjectID)
+        c.JSON(200, device)
 	}
-	c.JSON(200, device)
 }
 
 func getDeviceQueue(c *gin.Context) { // GET by device
