@@ -3,7 +3,7 @@ services:
   mesistant:
     container_name: mesistant
     restart: always
-    build: ./
+    image: "prokuma/mesistant:latest"
     privileged: true
     tty: true
     ports:
