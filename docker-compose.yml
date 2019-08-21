@@ -1,0 +1,10 @@
+version: '2'
+services:
+  mesistant:
+    container_name: mesistant
+    restart: always
+    build: ./
+    privileged: true
+    tty: true
+    volumes:
+    - "./data:/data/db"
