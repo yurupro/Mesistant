@@ -16,11 +16,11 @@ type Device struct {
 
 func registerDevice(c *gin.Context) { // POST by device
 	var device Device
-    if err := c.BindJSON(&device); err != nil {
-        c.Status(400)
-        fmt.Println(err)
-        return
-    }
+	if err := c.BindJSON(&device); err != nil {
+		c.Status(400)
+		fmt.Println(err)
+		return
+	}
 	ctx := context.TODO()
 	if err := deviceDB.FindOne(ctx, bson.M{"user_id": device.UserID}).Decode(&device); err == nil {
 		c.JSON(200, device)
@@ -33,7 +33,7 @@ func registerDevice(c *gin.Context) { // POST by device
 			return
 		}
 		device.ID = res.InsertedID.(primitive.ObjectID)
-        c.JSON(200, device)
+		c.JSON(200, device)
 	}
 }
 
