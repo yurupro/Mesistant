@@ -55,7 +55,7 @@ func main() {
 	r.POST("/user/login", userLogin) //{"user": "User id", "password": "password"}(SSLだからボディーにJSON載せよう)
 	// ユーザーログアウト
 	r.POST("/user/logout", userLogout)
-	
+
 	// デバイスの登録
 	r.POST("/device/register", registerDevice)
 	// デバイスからのキューの確認

@@ -40,8 +40,8 @@ func userLogin(c *gin.Context) {
 
 	ctx := context.Background()
 	type LoginReqJSON struct {
-	  Mail	string	`json:"mail"`
-	  Password	string	`json:"password"`
+		Mail     string `json:"mail"`
+		Password string `json:"password"`
 	}
 	var login LoginReqJSON
 	if err := c.BindJSON(&login); err != nil {
