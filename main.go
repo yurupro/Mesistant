@@ -17,7 +17,7 @@ var deviceDB *mongo.Collection
 
 func initDB() (*mongo.Client, error) {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	cli, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
+	cli, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://mesistant_db:27017"))
 	fmt.Println(err)
 	if err != nil {
 		return nil, err
