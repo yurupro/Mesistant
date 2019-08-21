@@ -7,6 +7,7 @@ WORKDIR /go/src
 RUN git clone https://github.com/yurupro/Mesistant.git
 
 WORKDIR /go/src/Mesistant
+RUN git checkout dev
 
 ENV GO111MODULE=on
 RUN go mod download
