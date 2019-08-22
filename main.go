@@ -41,11 +41,11 @@ func main() {
 	deviceDB = mongodb.Database("mesistant").Collection("device")
 
 	// レシピアップロード
-	r.POST("/recipe/upload", recipeUpload)
+	r.POST("/recipe", recipeUpload)
 	// IDからレシピ取得
 	r.GET("/recipe/:id", recipeGet)
 	// キューにレシピを追加
-	r.GET("/recipe/:id/add_queue", recipeAddQueue)
+	r.POST("/recipe/:id/add_queue", recipeAddQueue)
 	// ユーザーIDからそのユーザーのレシピを取得
 	r.GET("/user/:id/recipes", recipeGetByUser)
 
