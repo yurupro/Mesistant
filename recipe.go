@@ -75,6 +75,24 @@ func recipeGet(c *gin.Context) {
 	c.JSON(200, recipe)
 }
 
+func recipeAll(c *gin.Context) {
+	ctx := context.Background()
+	recipes := make([]Recipe, 0, 20)
+	cur, err := recipeDB.Find(ctx, bson.M{})
+	if err != nil {
+		c.Status(500)
+		return
+	}
+
+	for cur.Next(ctx) {
+		var recipe Recipe
+		cur.Decode(&recipe)
+		fmt.Println(recipe)
+		recipes = append(recipes, recipe)
+	}
+	c.JSON(200, JSONMultiRecipe{Array: recipes})
+}
+
 func recipeGetByUser(c *gin.Context) {
 	ctx := context.Background()
 	recipes := make([]Recipe, 0, 20)

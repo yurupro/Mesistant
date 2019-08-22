@@ -69,6 +69,8 @@ func main() {
 
 	// レシピアップロード
 	r.POST("/recipe", recipeUpload)
+	// レシピアップロード
+	r.GET("/recipes", recipeAll)
 	// IDからレシピ取得
 	r.GET("/recipe/:id", recipeGet)
 	// キューにレシピを追加
