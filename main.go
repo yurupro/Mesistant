@@ -48,7 +48,7 @@ func main() {
 
 	if err := json.Unmarshal(raw, &config); err != nil {
 		fmt.Println(err)
-		return
+		config.DatabaseURL = "mongodb://mesistant_db:27017"
 	}
 	fmt.Println(config)
 
