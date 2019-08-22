@@ -5,8 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-contrib/static"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
-	"github.com/go-session/gin-session"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"io/ioutil"
@@ -52,7 +53,8 @@ func main() {
 	fmt.Println(config)
 
 	r := gin.Default()
-	r.Use(ginsession.New())
+	store := cookie.NewStore([]byte("secret"))
+	r.Use(sessions.Sessions("mysession", store))
 	r.Use(static.Serve("/", static.LocalFile("web", false)))
 
 	mongodb, err := initDB(config.DatabaseURL)

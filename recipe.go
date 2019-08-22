@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/go-session/gin-session"
+	"github.com/gin-contrib/sessions"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -95,25 +95,36 @@ func recipeGetByUser(c *gin.Context) {
 	}
 	c.JSON(200, JSONMultiRecipe{Array: recipes})
 }
+
 func recipeAddQueue(c *gin.Context) {
+  session := sessions.Default(c)
 	ctx := context.TODO()
-	store := ginsession.FromContext(c)
-	userID, ok := store.Get("user")
-	if !ok {
-		c.Status(403)
-		return
+	userIDString := session.Get("user")
+	fmt.Println(userIDString)
+	if userIDString == nil {
+	  fmt.Println("session not found...")
+	  c.Status(403)
+	  return 
 	}
 	var recipe Recipe
 	var device Device
 	recipeID, _ := primitive.ObjectIDFromHex(c.Param("id"))
 	if err := recipeDB.FindOne(ctx, bson.M{"_id": recipeID}).Decode(&recipe); err != nil {
+	  fmt.Println(err)
 		c.Status(404)
 		return
 	}
-	if err := deviceDB.FindOne(ctx, bson.M{"user_id": userID.(string)}).Decode(&device); err != nil {
+	if err := deviceDB.FindOne(ctx, bson.M{"user_id": userIDString}).Decode(&device); err != nil {
+	  fmt.Println(err)
 		c.Status(400)
 		return
 	}
 	device.Recipe = recipe
+	update := bson.M{ "$set": bson.M{ "recipe": recipe } }
+	if _, err := deviceDB.UpdateOne(ctx, bson.M{"user_id": userIDString}, update); err != nil {
+	  fmt.Println(err)
+	  c.Status(500)
+	  return
+	}
 	c.JSON(200, recipe)
 }
