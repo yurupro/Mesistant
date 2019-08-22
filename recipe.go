@@ -32,11 +32,25 @@ func recipeUpload(c *gin.Context) {
 	var recipe Recipe
 	recipe.ID = primitive.NewObjectID()
 	if err := c.BindJSON(&recipe); err != nil {
-		c.Status(500)
+	  fmt.Println(err)
+		c.Status(400)
 		return
 	}
 	fmt.Println(recipe)
+	ctx := context.TODO()
+	var user User
+	userID, err := primitive.ObjectIDFromHex(recipe.UserID)
+	if err != nil {
+	  c.Status(400)
+	  return
+	}
+	if err := userDB.FindOne(ctx, bson.M{"_id": userID}).Decode(&user); err != nil {
+	  c.Status(500)
+	  return
+	}
+
 	if _, err := recipeDB.InsertOne(context.TODO(), recipe); err != nil {
+	  fmt.Println(err)
 		c.Status(500)
 		return
 	}
