@@ -35,9 +35,9 @@ func userLogin(c *gin.Context) {
 	fmt.Println("userSessionID: ")
 	fmt.Println(userSessionID)
 	if userSessionID != nil {
-		c.Data(400, "text/plain", []byte("You already logined."))
 		fmt.Println("You already logined")
-		return
+        session.Clear()
+        session.Save()
 	}
 
 	ctx := context.Background()
