@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-contrib/sessions"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -95,7 +96,11 @@ func recipeDelete(c *gin.Context) {
 func recipeAll(c *gin.Context) {
 	ctx := context.Background()
 	recipes := make([]Recipe, 0, 20)
-	cur, err := recipeDB.Find(ctx, bson.M{})
+
+    options := options.Find()
+    options.SetSort(bson.D{{"_id", -1}})
+    
+	cur, err := recipeDB.Find(ctx, bson.M{}, options)
 	if err != nil {
 		c.Status(500)
 		return
@@ -129,6 +134,30 @@ func recipeGetByUser(c *gin.Context) {
 		recipes = append(recipes, recipe)
 	}
 	c.JSON(200, JSONMultiRecipe{Array: recipes})
+}
+
+func recipeUpdate(c *gin.Context) {
+    session := sessions.Default(c)
+    userID := session.Get("user")
+    if userID == nil {
+        c.Status(403)
+        return
+    }
+    ctx := context.TODO()
+    var recipe Recipe
+
+	if err := c.BindJSON(&recipe); err != nil {
+        c.Status(400)
+        return
+    }
+	update := bson.M{ "$set": recipe }
+    if _, err := recipeDB.UpdateOne(ctx, bson.M{"_id": recipe.ID, "user_id": recipe.UserID}, update); err != nil {
+	  fmt.Println(err)
+	  c.Status(500)
+	  return
+	}
+    c.Status(200)
+    return
 }
 
 func recipeAddQueue(c *gin.Context) {
