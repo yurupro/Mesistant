@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/go-session/gin-session"
+	"github.com/gin-contrib/sessions"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -18,9 +18,9 @@ type User struct {
 }
 
 func userLogout(c *gin.Context) {
-	store := ginsession.FromContext(c)
-	store.Delete("user")
-	if err := store.Save(); err != nil {
+  session := sessions.Default(c)
+  session.Clear()
+	if err := session.Save(); err != nil {
 		c.Status(400)
 		return
 	}
@@ -28,11 +28,13 @@ func userLogout(c *gin.Context) {
 }
 
 func userLogin(c *gin.Context) {
-	store := ginsession.FromContext(c)
+  session := sessions.Default(c)
 	user := new(User)
 	user.ID = primitive.NilObjectID
-	_, ok := store.Get("user")
-	if ok {
+	userSessionID := session.Get("user")
+	fmt.Println("userSessionID: ")
+	fmt.Println(userSessionID)
+	if userSessionID != nil {
 		c.Data(400, "text/plain", []byte("You already logined."))
 		fmt.Println("You already logined")
 		return
@@ -40,8 +42,8 @@ func userLogin(c *gin.Context) {
 
 	ctx := context.Background()
 	type LoginReqJSON struct {
-	  Mail	string	`json:"mail"`
-	  Password	string	`json:"password"`
+		Mail     string `json:"mail"`
+		Password string `json:"password"`
 	}
 	var login LoginReqJSON
 	if err := c.BindJSON(&login); err != nil {
@@ -61,8 +63,9 @@ func userLogin(c *gin.Context) {
 
 	fmt.Println("- Found user")
 	fmt.Println(user)
-	store.Set("user", user.ID.String)
-	store.Save()
+	fmt.Println(user.ID)
+	session.Set("user", user.ID.Hex())
+	session.Save()
 	c.JSON(200, user)
 }
 

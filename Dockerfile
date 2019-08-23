@@ -3,8 +3,7 @@ LABEL maintainer="Prokuma <prokuma@prokuma.kr>"
 
 RUN apk add git
 
-WORKDIR /go/src
-RUN git clone https://github.com/yurupro/Mesistant.git
+ADD . /go/src/Mesistant
 
 WORKDIR /go/src/Mesistant
 

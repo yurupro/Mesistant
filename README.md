@@ -48,3 +48,8 @@
 - `/web`以下が`/`以下として実行されるので、それに合わせて開発。
   - 例　`/web/index.html`を置くと、ブラウザで`/index.html`にアクセスして見れる。
 
+## サーバー実験用Curlコマンドたち
+### レシピアップロード
+`curl -X POST -H "Content-type: application/json" -d "{\"name\": \"Super delicious meal\", \"user_id\": \"ユーザーIDをいれてね\", \"description\": \"Sample description\", \"Steps\": [{\"type\": \"heat\", \"description\": \"加熱するぜい\", \"heat_strength\": 100, \"duration\": 30}, {\"type\": \"add\", \"description\": \"なんか入れてくれ\", \"add_grams\": 100}]}" localhost:8080/recipe`
+### ログイン
+`curl -i -X POST -H "Content-type: application/json" -d "{\"mail\": \"test@test.com\", \"password\": \"test\"}" localhost:8080/user/login`

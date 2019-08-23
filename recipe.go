@@ -4,8 +4,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/go-session/gin-session"
+	"github.com/gin-contrib/sessions"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -32,11 +33,25 @@ func recipeUpload(c *gin.Context) {
 	var recipe Recipe
 	recipe.ID = primitive.NewObjectID()
 	if err := c.BindJSON(&recipe); err != nil {
+	  fmt.Println(err)
+		c.Status(400)
+		return
+	}
+	fmt.Println(recipe)
+	ctx := context.TODO()
+	var user User
+	userID, err := primitive.ObjectIDFromHex(recipe.UserID)
+	if err != nil {
+	  c.Status(400)
+	  return
+	}
+	if err := userDB.FindOne(ctx, bson.M{"_id": userID}).Decode(&user); err != nil {
 	  c.Status(500)
 	  return
 	}
-	fmt.Println(recipe)
+
 	if _, err := recipeDB.InsertOne(context.TODO(), recipe); err != nil {
+	  fmt.Println(err)
 		c.Status(500)
 		return
 	}
@@ -61,6 +76,45 @@ func recipeGet(c *gin.Context) {
 	c.JSON(200, recipe)
 }
 
+func recipeDelete(c *gin.Context) {
+  session := sessions.Default(c)
+  userID := session.Get("user")
+  if userID == nil {
+	c.Status(403)
+	return
+  }
+  ctx := context.TODO()
+  recipeID, _:= primitive.ObjectIDFromHex(c.Param("id"))
+
+  if _, err := recipeDB.DeleteOne(ctx, bson.M{"_id": recipeID, "user_id": userID}); err != nil{
+	c.Status(400)
+	return
+  }
+  c.Status(200)
+}
+
+func recipeAll(c *gin.Context) {
+	ctx := context.Background()
+	recipes := make([]Recipe, 0, 20)
+
+    options := options.Find()
+    options.SetSort(bson.D{{"_id", -1}})
+    
+	cur, err := recipeDB.Find(ctx, bson.M{}, options)
+	if err != nil {
+		c.Status(500)
+		return
+	}
+
+	for cur.Next(ctx) {
+		var recipe Recipe
+		cur.Decode(&recipe)
+		fmt.Println(recipe)
+		recipes = append(recipes, recipe)
+	}
+	c.JSON(200, JSONMultiRecipe{Array: recipes})
+}
+
 func recipeGetByUser(c *gin.Context) {
 	ctx := context.Background()
 	recipes := make([]Recipe, 0, 20)
@@ -81,25 +135,60 @@ func recipeGetByUser(c *gin.Context) {
 	}
 	c.JSON(200, JSONMultiRecipe{Array: recipes})
 }
-func recipeAddQueue(c *gin.Context){
-  ctx := context.TODO()
-  store := ginsession.FromContext(c)
-  userID, ok := store.Get("user")
-  if !ok {
-	c.Status(403)
-	return
-  }
-  var recipe Recipe
-  var device Device
-  recipeID, _:= primitive.ObjectIDFromHex(c.Param("id"))
-  if err := recipeDB.FindOne(ctx, bson.M{"_id": recipeID}).Decode(&recipe); err != nil{
-	c.Status(404)
-	return
-  }
-  if err := deviceDB.FindOne(ctx, bson.M{"user_id": userID.(string)}).Decode(&device); err != nil {
-	c.Status(400)
-	return
-  }
-  device.Recipe = recipe
-  c.JSON(200, recipe)
+
+func recipeUpdate(c *gin.Context) {
+    session := sessions.Default(c)
+    userID := session.Get("user")
+    if userID == nil {
+        c.Status(403)
+        return
+    }
+    ctx := context.TODO()
+    var recipe Recipe
+
+	if err := c.BindJSON(&recipe); err != nil {
+        c.Status(400)
+        return
+    }
+	update := bson.M{ "$set": recipe }
+    if _, err := recipeDB.UpdateOne(ctx, bson.M{"_id": recipe.ID, "user_id": recipe.UserID}, update); err != nil {
+	  fmt.Println(err)
+	  c.Status(500)
+	  return
+	}
+    c.Status(200)
+    return
+}
+
+func recipeAddQueue(c *gin.Context) {
+  session := sessions.Default(c)
+	ctx := context.TODO()
+	userIDString := session.Get("user")
+	fmt.Println(userIDString)
+	if userIDString == nil {
+	  fmt.Println("session not found...")
+	  c.Status(403)
+	  return 
+	}
+	var recipe Recipe
+	var device Device
+	recipeID, _ := primitive.ObjectIDFromHex(c.Param("id"))
+	if err := recipeDB.FindOne(ctx, bson.M{"_id": recipeID}).Decode(&recipe); err != nil {
+	  fmt.Println(err)
+		c.Status(404)
+		return
+	}
+	if err := deviceDB.FindOne(ctx, bson.M{"user_id": userIDString}).Decode(&device); err != nil {
+	  fmt.Println(err)
+		c.Status(400)
+		return
+	}
+	device.Recipe = recipe
+	update := bson.M{ "$set": bson.M{ "recipe": recipe } }
+	if _, err := deviceDB.UpdateOne(ctx, bson.M{"user_id": userIDString}, update); err != nil {
+	  fmt.Println(err)
+	  c.Status(500)
+	  return
+	}
+	c.JSON(200, recipe)
 }
