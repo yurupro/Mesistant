@@ -75,6 +75,23 @@ func recipeGet(c *gin.Context) {
 	c.JSON(200, recipe)
 }
 
+func recipeDelete(c *gin.Context) {
+  session := sessions.Default(c)
+  userID := session.Get("user")
+  if userID == nil {
+	c.Status(403)
+	return
+  }
+  ctx := context.TODO()
+  recipeID, _:= primitive.ObjectIDFromHex(c.Param("id"))
+
+  if _, err := recipeDB.DeleteOne(ctx, bson.M{"_id": recipeID, "user_id": userID}); err != nil{
+	c.Status(400)
+	return
+  }
+  c.Status(200)
+}
+
 func recipeAll(c *gin.Context) {
 	ctx := context.Background()
 	recipes := make([]Recipe, 0, 20)

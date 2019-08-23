@@ -73,6 +73,8 @@ func main() {
 	r.GET("/recipes", recipeAll)
 	// IDからレシピ取得
 	r.GET("/recipe/:id", recipeGet)
+	// IDからレシピ削除
+	r.DELETE("/recipe/:id", recipeDelete)
 	// キューにレシピを追加
 	r.POST("/recipe/:id/add_queue", recipeAddQueue)
 	// ユーザーIDからそのユーザーのレシピを取得
